@@ -1,0 +1,49 @@
+<html>
+<head>
+    <title>Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"] {
+            padding: 5px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            padding: 5px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bienvenidos a la deiviteca</h1>
+    <form action="/search" method="GET">
+        <label for="q">Buscar libros:</label>
+        <input type="text" name="q" placeholder="Ingrese el titulo del libro"/>
+        <input type="submit" value="Buscar"/>
+    </form>
+    <form action="/show_all_books" method="GET">
+        <input type="submit" value="Mostrar todos los libros"/>
+    </form>
+</body>
+</html>
