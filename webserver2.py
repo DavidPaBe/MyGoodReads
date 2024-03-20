@@ -5,6 +5,7 @@ from urllib.parse import parse_qsl, urlparse
 import uuid
 import redis
 import re
+import json
 
 # Código basado en:
 # https://realpython.com/python-http-server/

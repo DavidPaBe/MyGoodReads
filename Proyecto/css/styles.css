@@ -1,0 +1,55 @@
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0 5%;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+.book {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+}
+
+.book img {
+    max-width: 200px;
+    max-height: 200px;
+    margin-left: auto;
+}
+
+.book-details {
+    flex: 1;
+    padding-right: 20px;
+}
+
+.book-details a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+.book-details p {
+    margin: 5px 0;
+    line-height: 1.4;
+}
+
+.genre {
+    color: #666;
+}

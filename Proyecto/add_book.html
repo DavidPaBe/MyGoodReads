@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Libro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            text-align: center; /* Centro el contenido del body */
+        }
+        form {
+            display: inline-block; /* Hace que el formulario se centre */
+            text-align: left; /* Alinea el texto a la izquierda dentro del formulario */
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            display: block; /* Hace que los labels ocupen una línea completa */
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        textarea {
+            width: 300px;
+            padding: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            padding: 5px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #555;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Agregar Libro</h1>
+    <form action="/add_book" method="POST">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre"><br>
+        <label for="genero">Género:</label>
+        <input type="text" id="genero" name="genero"><br>
+        <label for="descripcion">Descripción:</label>
+        <textarea id="descripcion" name="descripcion"></textarea><br>
+        <label for="link_imagen">Link de la Imagen:</label>
+        <input type="text" id="link_imagen" name="link_imagen"><br>
+        <input type="submit" value="Agregar Libro">
+    </form>
+    <div class="button-container">
+        <a href="/" class="button">Regresar al índice</a>
+    </div>
+</body>
+</html>
