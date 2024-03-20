@@ -44,6 +44,27 @@
             color: white;
             cursor: pointer;
         }
+        .button-container {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 16px;
+            width: calc(100% - 24px); /* 24px for padding and border */
+            box-sizing: border-box;
+            text-decoration: none; /* Quitar subrayado del enlace */
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -54,12 +75,12 @@
             <input type="text" name="q" placeholder="Ingrese el título del libro"><br>
             <input type="submit" value="Buscar">
         </form>
-        <form action="/show_all_books" method="GET">
-            <input type="submit" value="Mostrar todos los libros">
-        </form>
-        <form action="/add_book" method="GET">
-            <input type="submit" value="Agregar Libros">
-        </form>
+        <div class="button-container">
+            <a href="/show_all_books" class="button">Mostrar todos los libros</a>
+        </div>
+        <div class="button-container">
+            <a href="/add_book" class="button">Agregar Libros</a>
+        </div>
     </div>
 </body>
 </html>
