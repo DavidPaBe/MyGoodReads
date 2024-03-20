@@ -194,7 +194,10 @@ class WebRequestHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
             self.end_headers()
-            self.wfile.write("<h1>Libro agregado exitosamente</h1>".encode("utf-8"))
+            self.wfile.write((styles + """<meta charset=\"UTF-8\"><h1>Libro agregado exitosamente</h1>
+                <div class="button-container">
+                    <a href="/" class="button">Regresar al índice</a>
+                </div>""").encode("utf-8"))
         else:
             self.send_response(404)
             self.end_headers()
@@ -235,26 +238,6 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         index_page = load_html("index.html")
         self.wfile.write(index_page.encode("utf-8"))
-
-    def get_book(self,book_id):
-        session_id = self.get_session()
-        r.lpush(f"session:{session_id}",f"book:{book_id}")
-        
-        self.send_response(200)
-        self.send_header("Content-Type", "text/html")
-        self.write_session_cookie(session_id)
-        self.end_headers()
-        
-        book_info = r.get(f"book:{book_id}") or "<h1> No existe el libro </h1>"
-        book_info += f"Session ID:{session_id}".encode("utf-8")
-        self.wfile.write(book_info)
-        #self.wfile.write(str(book_info).encode("utf-8"))
-        #self.wfile.write(f"session:{session_id}".encode("utf-8"))
-        #book_list = r.lrange(f"session:{session_id}", 0, -1)
-        books = r.lrange(f"session:{session_id}",0,-1)
-        for book in books:
-            decoded_book_id = book.decode("utf-8")
-            self.wfile.write(f"<br>book:{book}".encode("utf-8"))
             
     def search_book(self, title):
         session_id = self.get_session()
@@ -304,50 +287,6 @@ class WebRequestHandler(BaseHTTPRequestHandler):
             </html>
             """.encode("utf-8")
             self.wfile.write(not_found_message)
-    
-    def search_all_books(self):
-        # Obtener todos los libros
-        books = r.keys("book:*")
-        if books:
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html")
-            self.end_headers()
-            # Encabezado
-            book_list_html = "<meta charset=\"UTF-8\"><h1>Lista de libros</h1>"
-
-            for book_key in books:
-                book_info_json = r.get(book_key)
-                book_info = json.loads(book_info_json)
-                book_list_html += f"""
-                    <p><strong>Nombre:</strong><a href="/book_details?id={book_info['id']}">{book_info['nombre']}</a></p>
-                    <p><strong>Genero:</strong> {book_info['genero']}</p>
-                    <p><strong>Link de la Imagen:</strong> {book_info['link_imagen']}</p>
-                    <hr>
-                """
-            self.wfile.write(book_list_html.encode("utf-8"))
-        else:
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html")
-            self.end_headers()
-            self.wfile.write("<h1>No hay libros en la base de datos</h1>".encode("utf-8"))
-
-    
-    def add_book(self):
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        post_params = dict(parse_qsl(post_data.decode('utf-8')))
-        
-        nombre = post_params.get("nombre", "")
-        genero = post_params.get("genero", "")
-        descripcion = post_params.get("descripcion", "")
-        link_imagen = post_params.get("link_imagen", "")
-        
-        agregar_book(nombre, genero, descripcion, link_imagen)
-        
-        self.send_response(200)
-        self.send_header("Content-Type", "text/html")
-        self.end_headers()
-        self.wfile.write("<h1>Libro agregado exitosamente</h1>".encode("utf-8"))
         
     def search_books_by_title(self, title):
         books = r.keys("book:*")
