@@ -245,10 +245,8 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         book_info_json = r.get(f"book:{title}")
         if book_info_json:
             book_info = json.loads(book_info_json)
-            print(book_info)
             with open("book_details.html", "r") as file:
                 html_content = file.read()
-            print(html_content)
             formatted_html = html_content.format(
                 nombre=book_info["nombre"],
                 id=book_info["id"],
