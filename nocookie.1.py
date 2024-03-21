@@ -38,9 +38,9 @@ mappings = [
     (r"^/books?/(?P<book_id>\d+)$","get_book"),
     (r"^/search/$","search"),
     (r"^/show_all_books", "show_all_books"),
-    (r"/add_book", "add_book"),
+    (r"/add_book$", "add_book"),
     (r"^/search_all$", "search_books_by_title"),
-    (r"^/","index")
+    (r"^/$","index")
 ]
 
 styles = """
@@ -143,6 +143,7 @@ class WebRequestHandler(BaseHTTPRequestHandler):
             referer = self.headers.get('Referer')
             
             if referer:
+                print(referer)
                 query_string = urlparse(referer).query
                 query_params = parse_qsl(query_string)
                 
@@ -173,16 +174,27 @@ class WebRequestHandler(BaseHTTPRequestHandler):
 
             
     def url_mapping_response(self):
-        if self.path.startswith("/search?q="):
+        if self.path == "/":
+            self.index()
+        elif self.path.startswith("/add_book"):
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            with open("add_book.html", "r") as file:
+                content = file.read()
+            self.wfile.write(content.encode("utf-8"))
+        elif self.path.startswith("/search?q="):
             title = self.query_data.get("q", "")
             session_id = self.query_data.get("session", "")
             self.search_book(title, session_id)
-            return
         elif self.path.startswith("/search_all?q="):
             query = urlparse(self.path).query
             title = self.query_data.get("q", "")
             self.search_books_by_title(title)
-            return
+        elif self.path.startswith("/show_all_books"):
+            self.show_all_books()
+        else:
+            self.index()
         
         for pattern, method in mappings:
             params = self.get_params(pattern, self.path)
@@ -230,31 +242,8 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/html")
         self.end_headers()
         index_page = load_html("index.html")
-        session_id = self.query_data.get("session", "")
-        if session_id:
-            session_info_json = r.lrange(f"session:{session_id}", 0, -1)
-            if session_info_json:
-                print(session_info_json)
-                book_number = int(session_info_json[0].decode("utf-8").split(":")[1])
-                book_info_json = r.get(f"book:{book_number}")
-                if book_info_json:
-                    book_info = json.loads(book_info_json)
-                    share = f"""
-                        <h3> Porque leíste {book_info["nombre"]} te recomendamos los siguientes libros de este género {book_info["genero"]}</h3>
-                    """
-                    recomendaciones = self.search_books_by_genero(book_info["genero"], book_info["nombre"])
-                    self.wfile.write((index_page + share + recomendaciones).encode("utf-8"))
-                    return
-        self.wfile.write((index_page).encode("utf-8"))
-        
-    def add_book(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        with open("add_book.html", "r") as file:
-            content = file.read()
-        self.wfile.write(content.encode("utf-8"))
-        
+        self.wfile.write(index_page.encode("utf-8"))
+            
     def search_book(self, title, session_id):
         r.lpush(f"session:{session_id}", f"book:{title}")
         book_info_json = r.get(f"book:{title}")
@@ -300,19 +289,6 @@ class WebRequestHandler(BaseHTTPRequestHandler):
             """.encode("utf-8")
             self.wfile.write(not_found_message)
 
-    def search_books_by_genero(self, genero, title):
-        books = r.keys("book:*")
-        book_list_html = ""
-        if books:
-            for book_key in books:
-                book_info_json = r.get(book_key)
-                book_info = json.loads(book_info_json)
-                if genero.lower() in book_info['genero'].lower() and title.lower() not in book_info["nombre"].lower():
-                    book_list_html += self.data_book(book_info)
-            return styles+book_list_html
-        else:
-            return "<h1>No hay libros en la base de datos</h1>"
-
     def search_books_by_title(self, title):
         books = r.keys("book:*")
         if books:
@@ -332,7 +308,17 @@ class WebRequestHandler(BaseHTTPRequestHandler):
                 book_info_json = r.get(book_key)
                 book_info = json.loads(book_info_json)
                 if title.lower() in book_info['nombre'].lower():
-                    book_list_html += self.data_book(book_info)
+                    book_list_html += f"""
+                        <div class="book container">
+                            <div class="book-details">
+                                <p><strong>Nombre:</strong><a href="/search?q={book_info['id']}">{book_info['nombre']}</a></p>
+                                <p><strong>Género:</strong> {book_info['genero']}</p>
+                            </div>
+                            <div class="book-image">
+                                <img src="{book_info['link_imagen']}">
+                            </div>
+                        </div>
+                        """
             self.wfile.write((styles+book_list_html).encode("utf-8"))
         else:
             self.send_response(200)
@@ -360,7 +346,17 @@ class WebRequestHandler(BaseHTTPRequestHandler):
             for book_key in books:
                 book_info_json = r.get(book_key)
                 book_info = json.loads(book_info_json)
-                book_list_html += self.data_book(book_info)
+                book_list_html += f"""
+                <div class="book container">
+                    <div class="book-details">
+                        <p><strong>Nombre:</strong><a href="/search?q={book_info['id']}">{book_info['nombre']}</a></p>
+                        <p><strong>Género:</strong> {book_info['genero']}</p>
+                    </div>
+                    <div class="book-image">
+                        <img src="{book_info['link_imagen']}">
+                    </div>
+                </div>
+                """
             
             self.wfile.write((styles + book_list_html).encode("utf-8"))
         else:
@@ -368,23 +364,8 @@ class WebRequestHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "text/html")
             self.end_headers()
             self.wfile.write("<h1>No hay libros en la base de datos</h1>".encode("utf-8"))
-        
-    def data_book(self, book_info):
-        book_list_html = f"""
-        <div class="book container">
-            <div class="book-details">
-                <p><strong>Nombre:</strong><a href="/search?q={book_info['id']}">{book_info['nombre']}</a></p>
-                <p><strong>Género:</strong> {book_info['genero']}</p>
-                <p><strong>ID:</strong> {book_info['id']}</p>
-            </div>
-            <div class="book-image">
-                <img src="{book_info['link_imagen']}">
-            </div>
-        </div>
-        """
-        return book_list_html
 
 if __name__ == "__main__":
-    print("Server starting ..., can connect to this IP Public 54.236.133.4:8000")
+    print("Server starting ...")
     server = HTTPServer(("0.0.0.0", 8000), WebRequestHandler)
     server.serve_forever()
